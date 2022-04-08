@@ -1,0 +1,160 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<worldsens xmlns="http://worldsens.citi.insa-lyon.fr">
+
+
+<!-- == Worldsens ===================================================== -->
+<simulation nodes="25" duration="10s" x="500" y="500" z="0"/>
+
+
+<!-- == Entities ====================================================== -->
+
+
+<!-- == PROPAGATION, INTERFERENCES and MODULATION ===================== -->
+<entity name="range" library="propagation_range" >
+  <init  range="180"/>
+</entity>
+
+<entity name="interf" library="interferences_orthogonal">
+</entity>
+
+<entity name="bpsk" library="modulation_bpsk">
+</entity>
+
+<!-- == RADIO and ANTENNA ============================================ -->
+<entity name="omnidirectionnal" library="antenna_omnidirectionnal" >
+  <default loss="0" angle-xy="random" angle-z="random"/>
+</entity>
+
+<entity name="radio" library="radio_half1d" >
+  <default  sensibility="-160" T_s="1000" dBm="-8.2102" channel="0" modulation="bpsk"/>
+</entity>
+
+<!-- == ENERGY ===================================================== -->
+<entity name="liner" library="energy_linear">
+  <default energy="10000000000" rx="0.1" tx="0.1"/>
+</entity>
+
+<!-- == MAC ===================================================== -->
+<entity name="mac" library="mac_dcf_802_11" >
+   <init retry="2"/>
+</entity>
+
+<!-- == APPLICATION ===================================================== -->
+<entity name="rtm_source" library="application_epidemic" >
+   <default data_start="100ms" data_period="30ms" hello_start="0" hello_period="50ms" nb_timeout="200ms" r_update="100ms"/>
+</entity>
+
+<entity name="rtm_sensor" library="application_epidemic" >
+   <default data_start="100s" data_period="100s" hello_start="0" hello_period="50ms" nb_timeout="200ms" r_update="100ms"/>
+</entity>
+
+<entity name="rtm_sink" library="application_epidemic" >
+   <default data_start="100s" data_period="100s" hello_start="0" hello_period="50ms" nb_timeout="200ms" r_update="100ms"/>
+</entity>
+
+
+<!-- == MOBILITY ===================================================== -->
+<entity name="torus central" library="mobility_torus_central" >
+  <init max-speed="10"/>
+  <default angle-xy="random" angle-z="0" speed="random"/>
+</entity>
+
+<entity name="source-pos" library="mobility_torus_central" >
+  <init max-speed="10"/>
+  <default angle-xy="random" angle-z="0" speed="random"/>
+</entity>
+
+<entity name="sink-pos" library="mobility_static" >
+  <default x="500.0" y="500.0" z="0" />
+</entity>
+
+
+<!-- == Environment ===================================================== -->
+<environment>
+<propagation entity="range" range="180"/>
+<interferences entity="interf"/>
+<modulation entity="bpsk"/>
+</environment>
+
+
+<!-- == Bundle ===================================================== -->
+<bundle name="sensor" worldsens="false" default="true" birth="0">
+  <mobility entity="torus central"/>
+  <energy entity="liner"/>
+
+  <antenna entity="omnidirectionnal">
+    <up entity="radio"/>
+  </antenna>
+
+  <with entity="radio">
+    <up entity="mac"/>
+    <down entity="omnidirectionnal"/>
+  </with>
+
+  <with entity="mac">
+    <up entity="rtm_sensor"/>
+    <down entity="radio"/>
+  </with>
+
+  <with entity="rtm_sensor">
+    <down entity="mac"/>
+  </with>
+
+</bundle>
+
+<bundle name="source" worldsens="false" default="false" birth="0">
+  <mobility entity="source-pos"/>
+  <energy entity="liner"/>
+
+  <antenna entity="omnidirectionnal">
+    <up entity="radio"/>
+  </antenna>
+
+  <with entity="radio">
+    <up entity="mac"/>
+    <down entity="omnidirectionnal"/>
+  </with>
+
+  <with entity="mac">
+    <up entity="rtm_source"/>
+    <down entity="radio"/>
+  </with>
+
+  <with entity="rtm_source">
+    <down entity="mac"/>
+  </with>
+
+</bundle>
+
+<bundle name="sink" worldsens="false" default="false" birth="0">
+  <mobility entity="sink-pos"/>
+  <energy entity="liner"/>
+
+  <antenna entity="omnidirectionnal">
+    <up entity="radio"/>
+  </antenna>
+
+  <with entity="radio">
+    <up entity="mac"/>
+    <down entity="omnidirectionnal"/>
+  </with>
+
+  <with entity="mac">
+    <up entity="rtm_sink"/>
+    <down entity="radio"/>
+  </with>
+
+  <with entity="rtm_sink">
+    <down entity="mac"/>
+  </with>
+
+</bundle>
+
+<!-- == Nodes ===================================================== -->
+
+<node id="0" as="source"/>
+<node id="24" as="sink"/>
+
+</worldsens>
+
+
