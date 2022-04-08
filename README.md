@@ -1,6 +1,6 @@
 # QMR
-This is the code of the paper "QMR: Q-learning based Multi-objective optimization Routing protocol for Flying Ad Hoc Networks".  We use the WSNet simulator which can be downloaded via https://github.com/CEA-Leti/wsnet.
-To run our code, you first need to download the WSNet simulator via the above URL.
+This is the source code of the paper titled "QMR: Q-learning based Multi-objective optimization Routing protocol for Flying Ad Hoc Networks".  
+To run our code, you first need to download the WSNet simulator via https://github.com/CEA-Leti/wsnet.
 Detailed simulation configuration parameters are shown in  "qmr.xml".
 The implement of our routing protocols is shown in "qmr.c.
 
