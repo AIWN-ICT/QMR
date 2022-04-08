@@ -237,23 +237,6 @@ double avg_enery = 0;
 int failed_node[num_fault];
 int current_num = 0;
 
-/*while(current_num<num_fault){
-    int bl = 1;
-    while(bl==1){
-    int srcid=rand()%(NUMBER-1);
-    //printf("srcid %d\n",srcid);
-    for(int i=0;i<current_num;i++){
-       if(srcid==failed_num[i]||srcid==0||srcid==SINK){
-             break;
-       }
-    }
-   failed_node[current_num] = srcid;
-   current_num++;
-   bl = 0;
-   }
-   printf("failed_node %d\n",failed_node[current_num]-1);
-}*/
-
 
 /* ************************************************** */
 /* ************************************************** */
@@ -264,7 +247,6 @@ void rx_hello(call_t *c, packet_t *packet);
 void rx_data(call_t *c, packet_t *packet);
 void rx_replay(call_t *c, packet_t *packet);
 void rx_ack(call_t *c, packet_t *packet);
-//void update_Q(call_t *c, packet_t *packet,int type,uint64_t backtrack);
 void update_Q(call_t *c, int from, uint64_t delay);
 void update_wait(call_t *c, int from, uint64_t queue_delay);
 struct neighbor * get_nexthop(call_t *c, position_t *dst,packet_t *packet);
@@ -349,24 +331,6 @@ int setnode(call_t *c, void *params) {
         //printf("temp %d\n",temp);
         
         int i = 0;
-	/*if ((c->node!=0)&&(c->node!=SINK)&&(c->node % temp==0)&&(current_num<num_fault)){
-                current_num ++;
-                printf("current_num %d\n",current_num);
-                entity_t *entity1 = get_entity_by_name("liner");
-		int c_id = entity1->id;
-		call_t c1={c_id,c->node,-1};
-		entity1->methods->energy.set_energy(&c1,ENERGY2);
-		nodedata->energy_node = ENERGY2;
-	}*/
-        /*for(int i=0;i<num_fault;i++){
-            if(c->node==failed_node[i]){
-                entity_t *entity1 = get_entity_by_name("liner");
-		int c_id = entity1->id;
-		call_t c1={c_id,c->node,-1};
-		entity1->methods->energy.set_energy(&c1,ENERGY2);
-		nodedata->energy_node = ENERGY2;
-            }
-        }
 	FILE *ft = fopen("timeout.txt","ab");
 
     	/* get params */
@@ -399,8 +363,7 @@ int setnode(call_t *c, void *params) {
         }
         //printf("%s\n","4");
 	if (!strcmp(param->key, "nb_timeout")) {
-                    //printf("%s\n","5");
-                    //printf("nb_timeout %d\n",nodedata->nb_timeout);
+           
             if (get_param_time(param->value, &(nodedata->nb_timeout))) {
                 //printf("%s\n","11111111111111111");
                 //fprintf(ft,"nb_timeout %d\n",nodedata->nb_timeout);
@@ -418,16 +381,10 @@ int setnode(call_t *c, void *params) {
 	
     }
 	set_node_private_data(c, nodedata);
-    	//FILE *fp;
-	//fp = fopen("next.txt","ab");
+    	
         printf("set_time %u\n",get_time());
 	printf("[SETNODE] Node %d , position_x = %f ,position_y = %f,position_z = %f energy %f\n",c->node,get_node_position(c->node)->x,get_node_position(c->node)->y,get_node_position(c->node)->z,nodedata->energy_node);
-	//fclose(fp);
-        //printf("%s\n","111111");
-	/*FILE *p;
-	p = fopen("enery.txt","ab");
-	fprintf(p,"node %d in_enery %f\n",c->node,nodedata->energy_node);
-	fclose(p);*/
+	
     	return 0;
     
  error:
@@ -439,13 +396,6 @@ int unsetnode(call_t *c) {
     	struct nodedata *nodedata = get_node_private_data(c);
     	struct neighbor *neighbor = NULL;
 	struct data_send *datasend = NULL;
-	//FILE *fpt;
-        //fpt = fopen("print.txt","ab");
-	//printf("[NEIGHBOR] Node %d ",c->node);
-	/*if(c->node==0)
-		printf("node 0 rx %d\n",nodedata->rx_pack);
-	if(c->node==29)
-		printf("node 0 tx %d\n",nodedata->tx_pack);*/
 	
     	while ((neighbor = (struct neighbor *) das_pop(nodedata->neighbors)) != NULL) {
 		//printf("%d ",neighbor->id);
@@ -465,10 +415,6 @@ int unsetnode(call_t *c) {
 	rrxp += nodedata->rrxp;
 	
 	avg_enery += (ENERGY-nodedata->energy_node);
-	/*FILE *fp;
-	fp = fopen("enery.txt","ab");
-	fprintf(fp,"node %d enery %f\n",c->node,nodedata->energy_node);
-	fclose(fp);*/
 	if(c->node==SINK){
 		FILE *maxf,*avgf;
 		maxf = fopen("max_delay.txt","ab");
@@ -491,14 +437,7 @@ int unsetnode(call_t *c) {
                 //printf("count %d\n",count);
 		fclose(maxf);
 		fclose(avgf);
-		/*FILE *meetf = fopen("meettime.txt","ab");
-		fprintf(meetf,"meet %d\n",nodedata->meet_time);
-		fclose(meetf);*/
-		//fprintf(fp,"avg_d %u  ",nodedata->avg_d/count);
-		//fprintf(fp,"max_d %u\n",nodedata->max_d);
 	}
-	//fprintf(fp,"node %d total_rx %d total_tx %d total_meet_time %d\n",c->node,nodedata->rx_pack,nodedata->tx_pack,nodedata->meet_time);
-	//fclose(fp);
 	FILE *f;
 	//f = fopen("td_v_100.txt","ab");
 	if(c->node==0){
@@ -512,11 +451,6 @@ int unsetnode(call_t *c) {
 		txf = fopen("tx_packet.txt","ab");
 		fprintf(txf,"%d\n",nodedata->tx_pack);
 		fclose(txf);
-		/*FILE *fp;
-		fp = fopen("total_enery_mono2_10.txt","ab");
-		avg_enery = avg_enery/NUMBER;
-		fprintf(fp,"enery %f\n",avg_enery);
-		fclose(fp);*/
                 printf("tx_packet %d nodedata->after_learning_tx %d\n", nodedata->tx_pack, nodedata->after_learning_tx);
 	}
 	//fclose(f);
@@ -627,16 +561,12 @@ int hello_callback(call_t *c, void *args) {
 	hello->ilde = 0;
    	TX(&c0, packet);	 
 
-	//FILE *fe = fopen("energy.txt","ab");
-	//fprintf(fe,"be_energy %f\n",nodedata->energy_node);
 	entity_t *entity_e = get_entity_by_name("liner");
 	int ce_id = entity_e->id;
 	call_t ce={ce_id,c->node,-1};
 	uint64_t duration = T_b*packet->size;
 	entity_e->methods->energy.consume_tx(&ce,duration,0);
 	nodedata->energy_node = entity_e->methods->energy.energy_remaining(&ce);
-	//fprintf(fe,"af_energy %f\n",nodedata->energy_node);
-	//fclose(fe);
     
 	/* check neighbors timeout */
     if (nodedata->nb_timeout > 0) {
@@ -655,7 +585,6 @@ int data_callback(call_t *c, void *args) {
 
     	/* send a new data packet */
     	call_t c0 = {get_entity_bindings_down(c)->elts[0], c->node, c->entity};
-    	//packet_t *packet = packet_alloc(c, nodedata->overhead + sizeof(struct data_p));
 	packet_t *packet = packet_create(c, nodedata->overhead + sizeof(struct data_p), DATA_SIZE);
         //printf("Learning_time %ld nodedata->data_period %ld\n", Learning_time, nodedata->data_period);
         packet->learning_flag = 0;
@@ -675,9 +604,6 @@ int data_callback(call_t *c, void *args) {
 	struct timeval start;
 	gettimeofday(&start,0);
 	
-	//data_header->start_time = get_time();
-	//data_header->start_time.tv_usec = start.tv_usec;
-	//data_header->start_time.tv_sec = start.tv_sec;
 	data_header->start_t = get_time();
 
 	data_header->routt = 0;
@@ -699,9 +625,6 @@ int data_callback(call_t *c, void *args) {
 
 	forward(c,packet,get_time());
     
-    /* for stats */
-       //nodedata->tx_pack++;
-       //printf("source trans a packet %d\n", nodedata->tx_pack);
 
     /* schedule a new callback after actualtime+period */
         //if(get_time())
@@ -779,8 +702,6 @@ int r_callback(call_t *c, void *args){
 
 double neighbor_relation(call_t *c,struct neighbor *nb){
 	uint64_t current = get_time();
-	//double d_mobility = (current-nb->time)*nb->speed*1.0/1000000000;
-	//double d_old = distance(get_node_position(c->node),&(nb->position));
 	double rela_rate;
 	 
 	position_t pos;
@@ -795,88 +716,22 @@ double neighbor_relation(call_t *c,struct neighbor *nb){
 	pos.y = nb->position.y+((nb->speed * sin(nb->angle.xy))*(current-nb->time+nb->macd))/1000000000;
 	pos.z = 0;
 	double d_new = distance(get_node_position(c->node),&(pos));
-	/*position_t *new_pos = get_node_position(nb->id);
-	FILE *fl = fopen("pos.txt","ab");
-	fprintf(fl,"node %d x %f y %f z %f\n",nb->id,new_pos->x,new_pos->y,new_pos->z);
-	fprintf(fl,"old_x %f old_y %f old_z %f x %f y %f z %f \n",nb->position.x,nb->position.y,nb->position.z,pos.x,pos.y,pos.z);
-	fclose(fl);*/
+	
 	if(d_new<=RANGE)
 		//rela_rate = 1;
 		rela_rate = 1-d_new/RANGE;
 	else
 		rela_rate = 0;
-	/*if(d_old+d_mobility<=RANGE){
-		rela_rate = 1;
-		
-	}
-	else if(d_old-d_mobility>RANGE)
-		rela_rate = 0;
-	else{
-		double cos_ang = (d_old*d_old+RANGE*RANGE-d_mobility*d_mobility)/(2*d_old*RANGE);
-		double angle = 2*acos(cos_ang);
-		double L = angle*RANGE;
-		double t_area = 0.5*L*d_mobility;
-		cos_ang = (d_old*d_old+d_mobility*d_mobility-RANGE*RANGE)/(2*d_old*d_mobility);
-		angle = 2*(PI - acos(cos_ang));
-		double s_area = 0.5*angle*d_mobility*d_mobility;
-		double area = PI*d_mobility*d_mobility-(s_area-t_area);
-		rela_rate = area/(PI*d_mobility*d_mobility);
-	}*/
+	
 	return rela_rate;
 }
 
 double get_neighbor_lq(struct neighbor *nb,call_t *c){
-	//FILE *fl = fopen("lq.txt","ab");
-	//fprintf(fl,"c.id %d nb.id %d\n",c->node,nb->id);
 	
-	/*uint64_t current = get_time();
-	if(current-nb->time>2*HPERIOD)
-		nb->lq=nb->lq*A;
-	else
-		nb->lq=nb->lq*A+(1-A)*1;*/
-
-	 
 	double dr = (nb->hello_number*1.0)/3.0;
-	//fprintf(fl,"nb %d hello_number %d dr %f\n",nb->id,nb->hello_number,dr);
-	/*call_t c1 = {c->entity,nb->id, c->from};
-	// c1;
-	if(nb->id==0){
-		c1.entity = 7;
-	}
-	else if(nb->id==SINK){
-		c1.entity = 9;
-	}
-	else
-		c1.entity = 8;
-	//fprintf(fl,"node %d c1.entity %d c1.from %d\n",nb->id,c1.entity,c1.from);
-	//call_t cs = {9, SINK, c->from};
-	struct nodedata *nodedata = get_node_private_data(&c1);
-
-	struct neighbor *neighbor = NULL;
-	 
-     das_init_traverse(nodedata->neighbors); 
-     int number = 0;     
-     while ((neighbor = (struct neighbor *) das_traverse(nodedata->neighbors)) != NULL) {
-	//fprintf(fl,"nbid %d cid %d",neighbor->id,c->node);
-        if (neighbor->id == c->node) {
-            number = neighbor->hello_number;
-	    break;
-	}
-	//fprintf(fl,"\n");
-     }
-	//fprintf(fl,"c %d hello_number %d\n",c->node,number);
-	double df = number/3;
-	FILE *fle;
-	fle = fopen("lq_nb.txt","ab");
-	fprintf(fle,"nb %d df %f dr %f\n",nb->id,df,dr);
-	fclose(fle);
-	double lq1 = dr*df;
-	double lq2 = 1/lq1;*/
 	nb->lq = dr;
 	if(nb->lq>1)
 	    nb->lq = 1;
-	//fprintf(fl,"nb %d lq %f\n",nb->id,nb->lq);
-	//fclose(fl);
 	return nb->lq;
 
 }
@@ -945,12 +800,9 @@ void update_Q(call_t *c, int from, uint64_t mac_delay){
 	struct neighbor *from_neighbor = NULL;
 	FILE *fp;
 	fp = fopen("next.txt","ab");
-	//fprintf(fl,"%s\n","updateq_start");
-	//fprintf(fl,"ack from %d total %d\n",from,c->node);
 	das_init_traverse(nodedata->neighbors); 	 
 	while ((neighbor = (struct neighbor *) das_traverse(nodedata->neighbors)) != NULL) {
-		//fprintf(fl,"[updateq_start] node %d nb %d from %d total %d\n",id_node,neighbor->id,from,c->node);
-		//fprintf(fl,"nb %d\n",neighbor->id);
+		
 		if (neighbor->id == from) {
 			from_neighbor = neighbor;
 			break;
@@ -977,8 +829,7 @@ void update_Q(call_t *c, int from, uint64_t mac_delay){
 		total_delay = total_delay + *(from_neighbor->windows+i);
 	//	fprintf(f,"i %d window_delay %u\n",i,*(from_neighbor->windows+i));
 	}
-	//fclose(f);
-	//fprintf(f,"id %d size %d\n",from,from_neighbor->window_size);
+	
 	if(from_neighbor->window_size==0){
 		//from_neighbor->delay = B*delay;//update delay
 		
@@ -992,9 +843,6 @@ void update_Q(call_t *c, int from, uint64_t mac_delay){
 	from_neighbor->delay += from_neighbor->wait_time;
 	
 	
-	//fprintf(f,"before node %d nb %d delay %u\n",id_node,from,*(from_neighbor->windows+from_neighbor->window_size-1));
-	//fprintf(f,"after node %d nb %d delay %u\n",id_node,from,from_neighbor->delay);
-	//fclose(f);
 	/* a */
 	if(from_neighbor->window_size==N){
 		del_delay = *(from_neighbor->windows);
@@ -1041,9 +889,7 @@ void update_Q(call_t *c, int from, uint64_t mac_delay){
 		delay_size/=10;
 		scount++;
 	}*/
-	//s_delay = s_delay/pow(10,scount-count+1);
 	
-	//fprintf(p,"from_neighbor->delay  %u  avg_delay %u  s_delay %u\n",from_neighbor->delay,avg_delay,s_delay);
 	
 	if(s_delay==0)
 		from_neighbor->a = 0.3;
@@ -1066,13 +912,7 @@ void update_Q(call_t *c, int from, uint64_t mac_delay){
 	}
 	else
 		reward = W*e_delay+(1-W)*s_energy;
-	//fprintf(p,"nb_energy %f ",from_neighbor->energy);
-	//fprintf(p,"NERGY %f\n",ENERGY);
-	//fprintf(p,"e_delay %f s_energy %f\n",e_delay,s_energy);
 
-	
-	//if(from_neighbor->q<0)
-		//printf("%s\n","CQ");
 	
 	double old_q = from_neighbor->q;
 	from_neighbor->q = (1-from_neighbor->a)*from_neighbor->q+from_neighbor->a*(reward+(from_neighbor->r)*from_neighbor->max_q);
@@ -1087,291 +927,6 @@ void update_Q(call_t *c, int from, uint64_t mac_delay){
 
 }
 
-/*void update_Q(call_t *c, packet_t *packet,int type,uint64_t backtrack){
-	struct nodedata *nodedata = get_node_private_data(c);
-	struct data_send * data_se = NULL;
-	uint32_t nb_delay=0;
-	struct replay_p *replay;
-	struct ack_p *ack;
-
-	nodeid_t res_id = -1;
-	switch (type){
-		case REPLAY_PACKET:
-			replay = (struct replay_p *) (packet->data + nodedata->overhead);
-			res_id = replay->res;
-			nb_delay = backtrack-nodedata->start_hello;
-			break;
-		case ACK_PACKET:
-			ack = (struct ack_p *) (packet->data + nodedata->overhead);
-			res_id = ack->res;
-			das_init_traverse(nodedata->data_st); 	 
-			while ((data_se = (struct data_send *) das_traverse(nodedata->data_st)) != NULL) {
-				if (data_se->seq==res_id) {
-					nb_delay = backtrack-data_se->send;
-					data_se->seq = -1;
-					break;
-				}
-			}
-
-			break;
-	}
-	
-	//printf("nb_delay %u\n",nb_delay);
-
-	//uint64_t *windows = NULL;////////////
-	struct neighbor *neighbor = NULL;
-	struct neighbor *replay_neighbor = NULL;
-	das_init_traverse(nodedata->neighbors); 	 
-	while ((neighbor = (struct neighbor *) das_traverse(nodedata->neighbors)) != NULL) {
-		if (neighbor->id == res_id) {
-			//windows = neighbor->windows;
-			replay_neighbor = neighbor;
-			//printf("neighbor_id %d res_id %d\n",neighbor->id,res_id);
-			break;
-		}
-	}
-	if(replay_neighbor==NULL){
-		
-		return;
-	}
-	uint32_t *windows = replay_neighbor->windows;
-	uint32_t total_delay = 0;
-	uint32_t del_delay = 0;
-	uint32_t avg_delay = 0;
-	double s_delay = 0;
-	int i;
-	for(i=0;i<replay_neighbor->window_size;i++){
-		total_delay = total_delay + *(replay_neighbor->windows+i);
-		//printf("window_delay %u\n",*(replay_neighbor->windows+i));
-	}
-	if(replay_neighbor->window_size==0)
-		replay_neighbor->delay = B*nb_delay;//update delay
-	else{
-		replay_neighbor->delay = (1-B)*total_delay/replay_neighbor->window_size+B*nb_delay;//update delay
-	}
-	double error_locatation = locate_error(c,replay_neighbor);
-	if(error_locatation<1)
-		replay_neighbor->delay = replay_neighbor->delay/(1-error_locatation);
-	
-
-	
-	if(replay_neighbor->window_size==N){
-		del_delay = *(replay_neighbor->windows);
-		for(i=0;i<replay_neighbor->window_size-1;i++){
-			*(replay_neighbor->windows+i)=*(replay_neighbor->windows+i+1);
-		}
-		*(replay_neighbor->windows+replay_neighbor->window_size-1) = replay_neighbor->delay;
-		total_delay = total_delay+replay_neighbor->delay-del_delay;
-	}
-	else{
-		//printf("insert where %d\n",replay_neighbor->window_size);
-		*(replay_neighbor->windows+replay_neighbor->window_size) = replay_neighbor->delay;
-		replay_neighbor->window_size++;
-		total_delay = total_delay+replay_neighbor->delay;
-	}
-	//printf("neighbor_id %d neighbor_size %d :",replay_neighbor->id,replay_neighbor->window_size);
-	
-	
-	avg_delay = total_delay/replay_neighbor->window_size;
-	
-	uint32_t delay_size = avg_delay;
-	int count = 0;
-	while(delay_size!=0){
-		delay_size/=10;
-		count++;
-	}
-	
-	for(i=0;i<replay_neighbor->window_size;i++){
-		s_delay += pow((*(replay_neighbor->windows+i))/(pow(10,count-2)*1.0)-avg_delay/(pow(10,count-2)*1.0),2);
-	}
-	s_delay = s_delay/replay_neighbor->window_size;
-	if(s_delay==0)
-		replay_neighbor->a = 1;
-	else
-		replay_neighbor->a = (abs(nb_delay-avg_delay)/pow(10,count-2)*1.0)/s_delay;
-	
-	//FILE *fpt;
-	//fpt = fopen("print.txt","ab");
-	//printf("neighbor_id %d a %f\n",replay_neighbor->id,replay_neighbor->a);
-	double b_delay = (double)(replay_neighbor->delay)/1000000.0;
-	double e_delay = exp(0-b_delay);
-	double s_energy = replay_neighbor->energy/(ENERGY*1.0);
-	double imm_re = W*e_delay+(1-W)*s_energy;
-
-	printf("node %d nb %d nb_q %f a %f r %f nb_maxq %f\n",c->node,replay_neighbor->id,replay_neighbor->q,replay_neighbor->a,replay_neighbor->r,replay_neighbor->max_q);
-
-	replay_neighbor->q = (1-replay_neighbor->a)*replay_neighbor->q+replay_neighbor->a*(imm_re+(replay_neighbor->r)*replay_neighbor->max_q);
-	//printf("Node %d neighbor %d neighbor_q %f neighbor_energy %d neighbor_a %f neighbor_r %f imme_return %f neighbor_delay %u \n",c->node,replay_neighbor->id,replay_neighbor->q,replay_neighbor->energy,replay_neighbor->a,replay_neighbor->r,imm_re,replay_neighbor->delay);
-	//printf("%s \n","end_updateq");
-	//fclose(fpt);
-	return;
-	
-}*/
-
-
-/* ************************************************** */
-/* ************************************************** */
-/*struct neighbor* get_nexthop(call_t *c, position_t *dst, packet_t *packet) {//根据速度和Q值获取下一跳
-    	struct nodedata *nodedata = get_node_private_data(c);
-	void *candidate_neighbors = das_create();
-    	struct neighbor *neighbor = NULL, *n_hop = NULL, *max_speed_nb = NULL, *maxq_nb = NULL;
-	maxq_nb = (struct neighbor *) malloc(sizeof(struct neighbor));
-	maxq_nb->prospeed=0;
-	maxq_nb->id = c->node;
-	struct data_p *data = (struct data_p *) (packet->data + nodedata->overhead);
-
-	call_t cs = {9, SINK, c->from};
-	dst->x = get_node_position(cs.node)->x;
-	dst->y = get_node_position(cs.node)->y;
-	dst->z = get_node_position(cs.node)->z;
-	double dist = distance(get_node_position(c->node), dst);
-	
-	double req_speed = dist/(data->deadline/1000000000.0);
-    
-    	uint64_t clock = get_time();
-	double d = 0, d_min = 0, d_max = 0, mobility_r = 0;
-	double pro_speed = 0, pro_speed_avg = 0, pro_speed_min = 0, pro_speed_max = 0;
-	double max_speed = 0;
-	double q_value = 0;
-	double maxsp_d = 0;
-	
-
-    // parse neighbors 
-    int size_nb = 0;  
-    double sum_q = 0;
-    das_init_traverse(nodedata->neighbors); 
-    //int size_nb = das_getsize(nodedata->neighbors); 
-    printf("node %d get_nexthop nb_number %d packet %d\n", c->node, size_nb, packet->id);
-    FILE *fp = fopen("next.txt", "ab");
-    fprintf(fp,"node %d get_nexthop nb_number %d packet %d\n", c->node, size_nb, packet->id);  
-    while ((neighbor = (struct neighbor *) das_traverse(nodedata->neighbors)) != NULL) { 
-		//size_nb++; 
-		entity_t *entity1 = get_entity_by_name("liner");
-		int c_id = entity1->id;
-		call_t c1={c_id,neighbor->id,-1};
-		double status = entity1->methods->energy.energy_status(&c1);
-		double remain_energy = entity1->methods->energy.energy_remaining(&c1);
-		if(status==0||remain_energy<0)
-			continue;
-        if ((nodedata->nb_timeout > 0)
-            && (clock - neighbor->time) >= nodedata->nb_timeout ) {
-            continue;
-        }
-        
-        // choose candidate_neighbor 
-		//mobility_r = (clock-neighbor->time)*neighbor->speed;
-		position_t pos;
-		pos.x = neighbor->position.x+((neighbor->speed * cos(neighbor->angle.xy)*cos(neighbor->angle.z))*(clock-neighbor->time+neighbor->macd))/1000000000;
-		pos.y = neighbor->position.y+((neighbor->speed * sin(neighbor->angle.xy)*cos(neighbor->angle.z))*(clock-neighbor->time+neighbor->macd))/1000000000;
-		pos.z = neighbor->position.z+((neighbor->speed * sin(neighbor->angle.z))*(clock-neighbor->time+neighbor->macd))/1000000000;
-		if(pos.z<0)
-			pos.z = 0;
-		if(pos.x>SINK_X)
-			pos.x=SINK_X;
-		if(pos.y>SINK_Y)
-			pos.y=SINK_Y;
-		double d_new = distance(dst,&(pos));
-		
-       // d = distance(&(neighbor->position), dst);
-		//fprintf(fp,"Node %d neighbor %d neighbor_delay %u\n",c->node,neighbor->id,neighbor->delay);
-		if(neighbor->delay==0)
-			continue;
-		double rela_rate = neighbor_relation(c,neighbor);
-		//fprintf(fp,"rela_rate %f\n",rela_rate);
-		if(rela_rate==0)
-			continue;
-		if(neighbor->id==data->src)
-			continue;
-		double lq = get_neighbor_lq(neighbor,c);
-		//fprintf(fp,"lq1 %f lq2 %f\n",lq,neighbor->lq);
-		double tq = rela_rate*lq;
-		//double tq = 1;
-		if(neighbor->delay!=0){
-			pro_speed = (dist-d_new)/(neighbor->delay/1000000000.0);
-			neighbor->prospeed = pro_speed;
-			//pro_speed = (dist-d)/(neighbor->delay/1000000000.0);
-		}
-		//double error_locate = locate_error(c,neighbor);
-		//fprintf(fp,"nb_a %f nb_r %f\n",neighbor->a,neighbor->r);
-		fprintf(fp,"Node %d neighbor %d nb_q %f max_q %f req_speed %f pro_speed %f \n",c->node,neighbor->id,neighbor->q,neighbor->max_q,req_speed,pro_speed);
-		//fprintf(fp,"delay %u\n",neighbor->delay);
-		
-		if(neighbor->prospeed>=req_speed){
-			if(neighbor->id==data->dst){
-				fclose(fp);
-				return neighbor;
-			}
-			das_insert(candidate_neighbors, (void *) neighbor);
-			sum_q += neighbor->q;
-			size_nb++;
-		}
-		if(pro_speed>max_speed){
-			max_speed = pro_speed;
-			max_speed_nb = neighbor;
-			//maxsp_d = d;
-		}
-    }
-	//fprintf(fp,"%s %d\n","nb_number",size_nb);
-	//FILE *fcq;
-	//fcq = fopen("getneighbor_q.txt","ab"); 
-	int size = das_getsize(candidate_neighbors);
-	fprintf(fp, "candidate_neighbors_size %d size_nb %d \n",size,size_nb);
-        printf("candidate_neighbors_size %d size_nb %d \n",size,size_nb);
-	//fclose(fp);
-	//FILE *f;
-	//f = fopen("next.txt","ab");
-	if(size==0){
-		fprintf(fp,"1maxspeed %f reqspeed %f \n",max_speed,req_speed);
-		printf("1maxspeed %f reqspeed %f \n",max_speed,req_speed);
-		if(max_speed==0){
-			fclose(fp);
-			//fclose(fcq);
-			printf("%s \n","end_nexthop");	
-			return NULL;
-		}
-		else{
-			n_hop = max_speed_nb;
-			fprintf(fp,"2maxspeed %f reqspeed %f \n",max_speed,req_speed);
-			//fprintf(fcq,"2maxspeed %f reqspeed %f \n",max_speed,req_speed);
-			//uint64_t delay_lowsp = (uint64_t)(((dist-maxsp_d)/max_speed-(dist-maxsp_d)/req_speed)*1000000000);
-			//data->deadline -= delay_lowsp;
-		}
-	}
-	else{
-		struct neighbor *c_neighbor = NULL;
-		//double r = rand() % (999 + 1) / (double)(999 + 1);; //r为0至1的随机数
-		//double m = 0;
-                double max_q = 0;
-                printf("traves candidate neighbors\n");
-		das_init_traverse(candidate_neighbors); 
-    		while ((c_neighbor = (struct neighbor *) das_traverse(candidate_neighbors)) != NULL) {
-                        //printf("candnb %d\n", c_neighbor->id);
-			double rela_rate = neighbor_relation(c,c_neighbor);
-                        //printf("11 \n");
-			double lq = get_neighbor_lq(c_neighbor,c);
-		        fprintf(fp,"nb %d lq %f rela_rate %f q_value %f\n", c_neighbor->id, lq, rela_rate, c_neighbor->q);
-                        //printf("lq %f rela_rate %f q_value %f\n", lq, rela_rate, c_neighbor->q);
-			double weightedQ = rela_rate * lq * c_neighbor->q; 
-                        fprintf(fp,"weightedQ %f max_q %f\n", weightedQ, max_q);
-                        if(weightedQ > max_q){
-                              n_hop = c_neighbor;
-                              max_q = weightedQ;
-                        }
-			
-		}
-
-	}
-	//fclose(fcq);
-	if(size!=0&&maxq_nb->id==c->node){
-		n_hop = max_speed_nb;
-                fprintf(fp, "n_hop = max_speed_nb\n");
-	}
-	fprintf(fp,"next_nb %d\n",n_hop->id);
-	//fprintf(fp,"%s \n","end_nexthop");
-    	fclose(fp);
-	//printf("%s \n","end_nexthop");
-    return n_hop;
-}*/
 
 //e greedy
 struct neighbor* get_nexthop(call_t *c, position_t *dst,packet_t *packet) {//根据速度和Q值获取下一跳
@@ -1455,8 +1010,7 @@ struct neighbor* get_nexthop(call_t *c, position_t *dst,packet_t *packet) {//根
 			neighbor->prospeed = pro_speed;
 			//pro_speed = (dist-d)/(neighbor->delay/1000000000.0);
 		}
-		//double error_locate = locate_error(c,neighbor);
-		//fprintf(fp,"nb_a %f nb_r %f\n",neighbor->a,neighbor->r);
+		
 		fprintf(fp,"Node %d neighbor %d req_speed %f pro_speed %f\n",c->node,neighbor->id,req_speed,pro_speed);
                 fprintf(fp,"tq %f nb_q %f max_q %f\n", tq, neighbor->q*tq, q_value);
 		//fprintf(fp,"delay %u\n",neighbor->delay);
@@ -1490,9 +1044,7 @@ struct neighbor* get_nexthop(call_t *c, position_t *dst,packet_t *packet) {//根
 	//fprintf(fp,"%s %d\n","nb_number",size_nb); 
 	int size = das_getsize(candidate_neighbors);
 	fprintf(fp,"candidate_neighbors_size %d\n",size);
-	//fclose(fp);
-	//FILE *f;
-	//f = fopen("next.txt","ab");
+	
 	if(size==0){
 		fprintf(fp,"1maxspeed %f reqspeed %f \n",max_speed,req_speed);
 		if(max_speed==0){
@@ -1929,11 +1481,7 @@ void forward(call_t *c, packet_t *packet, uint64_t come_time) {
 	datast->seq = next_nb->id;
 	//datast->packet = packet;
 	das_insert(nodedata->data_st, datast);
-	//data->deadline = data->deadline-(get_time()-come_time)-packet->size*T_b;
 	
-		
-	//printf("node_id = %d , pack_id = %d , leave_deadline = %u \n",c->node,packet->id,data->deadline);
-		
 	/* forwarding packet */
 	
 
@@ -1994,9 +1542,7 @@ void rx(call_t *c, packet_t *packet) {
 	uint64_t duration = T_b*packet->size;
 	entity_e->methods->energy.consume_rx(&ce,duration);
 	nodedata->energy_node = entity_e->methods->energy.energy_remaining(&ce);
-	//FILE *fpt;
-	//fpt = fopen("print.txt","ab");
-	//printf("%s \n","start_rx");
+	
    
     struct data_d_header *header = (struct data_d_header *) (packet->data + nodedata->overhead);////
     
@@ -2105,33 +1651,6 @@ void rx_data(call_t *c, packet_t *packet){
 	
 }
 
-/*void tx(call_t * c,packet_t *packet){
-        FILE *fp = ("next.txt", "ab");
-        fprintf(fp, "c_node %d c_form %d packet_id %d\n", c->node, c->from, packet->id);
-        fclose(fp);
-        printf("node %d from_tx\n", c->node);
-	int from = (c->node)%NUMBER;
-	int id_node = (c->node)/NUMBER;
-	if(c->from<1000000&&c->from>=0){
-		update_wait(c);
-		return;
-	}
-	if(c->from<0)
-		return;
-	update_Q(c);
-	call_t c0 = {c->entity,id_node,6};
-	struct nodedata *nodedata = get_node_private_data(&c0);
-	struct data_send *data_se = NULL;
-	int bl;
-	das_init_traverse(nodedata->data_st); 	 
-	while ((data_se = (struct data_send *) das_traverse(nodedata->data_st)) != NULL) {
-		if(data_se->seq==from){
-			das_delete(nodedata->data_st, data_se);
-			break;
-		}
-	}
-	return;
-}*/
 
 void get_queueDelay(call_t *c, int from, packet_t *packet){
     update_wait(c, from, packet->queue_delay);
